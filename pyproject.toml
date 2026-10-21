@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amagi-vaultgraph"
+version = "0.1.0"
+description = "Turn an Obsidian vault or Claude Code memory folder into one shareable 3D graph HTML file, with an orphan report and link suggestions. Names only, never note text."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "AmagiLabs (Amagisolutionsgroup, Inc.)", email = "dev@amagisolutionsgroup.com" }]
+requires-python = ">=3.9"
+dependencies = []
+keywords = ["obsidian", "graph", "knowledge-graph", "markdown", "wikilinks", "second-brain", "claude-code", "3d", "visualization", "zettelkasten"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+
+[project.urls]
+Homepage = "https://github.com/amagilabs/amagi-vaultgraph"
+
+[project.scripts]
+vaultgraph = "amagi_vaultgraph.cli:main"
+amagi-vaultgraph = "amagi_vaultgraph.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+amagi_vaultgraph = ["vendor/*.js", "vendor/*.LICENSE"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
