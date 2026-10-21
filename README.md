@@ -12,6 +12,8 @@ Turn a folder of markdown notes (an Obsidian vault, a Claude Code memory folder,
 pipx install amagi-vaultgraph
 ```
 
+Not on PyPI yet. Until the first release, install from a clone with `pip install .` in the repo folder.
+
 Python 3.9 or newer. No dependencies.
 
 ## Usage

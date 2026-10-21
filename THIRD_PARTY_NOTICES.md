@@ -3,7 +3,7 @@
 `src/amagi_vaultgraph/vendor/3d-force-graph.min.js` is the unmodified UMD build of
 [3d-force-graph](https://github.com/vasturiano/3d-force-graph) v1.80.1
 (npm `3d-force-graph@1.80.1`, `dist/3d-force-graph.min.js`,
-sha256 `13088340aad408156064fd120c3bc3a47c93a3cc45b8f132d6284b20e2223be9`).
+sha256 `13088340 aad40815 6064fd12 0c3bc3a4 7c93a3cc 45b8f132 d6284b20 e2223be9`).
 It is MIT licensed, Copyright (c) 2017 Vasco Asturiano; the full license is in
 `src/amagi_vaultgraph/vendor/3d-force-graph.LICENSE`.
 
