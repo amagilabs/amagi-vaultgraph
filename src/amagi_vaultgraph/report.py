@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
 
 from .graph import Graph, norm_key
-from .vault import Note
+from .vault import Note, without_links
 
 _TOKEN_RE = re.compile(r"[^\W_]+", re.U)
 MIN_SINGLE_WORD = 5  # one-word names shorter than this ("home", "todo") are too noisy to match in text
@@ -56,10 +56,12 @@ def _name_keys(note: Note) -> Set[Tuple[str, ...]]:
     return keys
 
 
-def unlinked_mentions(graph: Graph) -> List[Suggestion]:
+def unlinked_mentions(graph: Graph, max_share: float = 0.15) -> List[Suggestion]:
     """Note A's text names note B (by title, file name or alias) but A and B
     are not linked in either direction. Same idea as Obsidian's
-    'unlinked mentions', run over the whole vault at once."""
+    'unlinked mentions', run over the whole vault at once. A name that shows
+    up in more than `max_share` of all notes is an everyday word in this vault
+    ("claude", "accounts"), not a pointer, and is ignored."""
     index: Dict[Tuple[str, ...], Set[str]] = defaultdict(set)
     for n in graph.notes:
         for key in _name_keys(n):
@@ -69,21 +71,28 @@ def unlinked_mentions(graph: Graph) -> List[Suggestion]:
     if not index:
         return []
     longest = max(len(k) for k in index)
-    out: List[Suggestion] = []
+    hits: Dict[str, Dict[str, Tuple[str, ...]]] = {}
+    key_df: Counter = Counter()
     for a in graph.notes:
-        words = tokens(a.body)
-        found: Dict[str, str] = {}
+        words = tokens(without_links(a.body))  # linked mentions are not "unlinked mentions"
+        found: Dict[str, Tuple[str, ...]] = {}
         for i in range(len(words)):
             for size in range(min(longest, len(words) - i), 0, -1):
-                hit = index.get(tuple(words[i:i + size]))
+                key = tuple(words[i:i + size])
+                hit = index.get(key)
                 if not hit:
                     continue
                 for b in hit:
                     if b != a.id and b not in found:
-                        found[b] = " ".join(words[i:i + size])
+                        found[b] = key
                 break
-        for b in sorted(found):
-            if b in graph.neighbors.get(a.id, ()):
+        hits[a.id] = found
+        key_df.update(set(found.values()))
+    limit = max(3, int(max_share * len(graph.notes)))
+    out: List[Suggestion] = []
+    for a in graph.notes:
+        for b, key in sorted(hits[a.id].items()):
+            if key_df[key] > limit or b in graph.neighbors.get(a.id, ()):
                 continue
             out.append(Suggestion(a.id, b, "mention", graph.by_id[b].name))
     return out
@@ -191,13 +200,17 @@ def build_report(graph: Graph) -> Report:
     mentions = unlinked_mentions(graph)
     have = {(s.source, s.target) for s in mentions} | {(s.target, s.source) for s in mentions}
     similar = [s for s in similar_names(graph, orphans) if (s.source, s.target) not in have]
-    suggestions = sorted(mentions + similar, key=lambda s: (s.source, s.reason, s.target))
+    lonely = {n.id for n in orphans}
+    # links that would rescue an orphan first, then everything else
+    suggestions = sorted(mentions + similar,
+                         key=lambda s: (s.source not in lonely and s.target not in lonely,
+                                        s.source, s.reason, s.target))
     return Report(graph, orphans, dangling_links(graph), suggestions)
 
 
 def _label(graph: Graph, note_id: str) -> str:
     n = graph.by_id[note_id]
-    return n.id if n.name == n.stem else f"{n.id} ({n.name})"
+    return n.id if norm_key(n.name) == norm_key(n.stem) else f"{n.id} ({n.name})"
 
 
 def _reason_text(s: Suggestion) -> str:

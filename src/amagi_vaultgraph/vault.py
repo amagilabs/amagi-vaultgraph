@@ -121,6 +121,11 @@ def strip_code(text: str) -> str:
     return _INLINE_CODE_RE.sub(" ", _FENCE_RE.sub(" ", text))
 
 
+def without_links(text: str) -> str:
+    """Text with every [[wikilink]] and [label](note.md) link removed."""
+    return _MDLINK_RE.sub(" ", _WIKILINK_RE.sub(" ", text))
+
+
 def extract_links(text: str) -> List[Link]:
     """All note links in `text`: [[wikilinks]] (with |alias, #heading, ^block)
     and relative markdown links to .md files. Embeds of images/PDFs are skipped."""
