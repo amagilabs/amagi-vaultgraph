@@ -135,8 +135,10 @@ def similar_names(graph: Graph, only: Optional[List[Note]] = None, top: int = 3,
                 continue
             union = sum(weight(t) for t in mine | other)
             score = sum(weight(t) for t in shared) / union if union else 0.0
-            ratio = difflib.SequenceMatcher(None, norm_key(o.name), norm_key(n.name)).ratio()
-            score = max(score, ratio if ratio >= 0.85 else 0.0)
+            if score < 0.85:  # near-identical spelling also counts; cheap bounds first
+                sm = difflib.SequenceMatcher(None, norm_key(o.name), norm_key(n.name))
+                if sm.real_quick_ratio() >= 0.85 and sm.quick_ratio() >= 0.85 and sm.ratio() >= 0.85:
+                    score = max(score, sm.ratio())
             if score >= threshold:
                 scored.append((score, graph.degree(n.id), n.id))
         scored.sort(key=lambda s: (-s[0], -s[1], s[2]))
