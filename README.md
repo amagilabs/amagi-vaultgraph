@@ -2,17 +2,15 @@
 
 Turn a folder of markdown notes (an Obsidian vault, a Claude Code memory folder, a Foam or Logseq export) into one 3D graph you can open in a browser, plus a list of orphan notes, broken links, and links you probably meant to write.
 
-![vaultgraph run on the sample vault](assets/demo.gif)
+![vaultgraph run on the sample vault](https://raw.githubusercontent.com/amagilabs/amagi-vaultgraph/master/assets/demo.gif)
 
-![the 3D graph it writes, recorded in a browser](assets/graph.gif)
+![the 3D graph it writes, recorded in a browser](https://raw.githubusercontent.com/amagilabs/amagi-vaultgraph/master/assets/graph.gif)
 
 ## Install
 
 ```bash
 pipx install amagi-vaultgraph
 ```
-
-Not on PyPI yet. Until the first release, install from a clone with `pip install .` in the repo folder.
 
 Python 3.9 or newer. No dependencies.
 
@@ -81,7 +79,7 @@ vaultgraph sample-vault -o layered.html --layered
 
 `--layered` puts each colour group in its own labelled column, biggest group on the left, best-connected notes at the top. Use it when you want to see how projects link to decisions, or which folder links into which.
 
-![layered view of the sample vault](assets/layered.png)
+![layered view of the sample vault](https://raw.githubusercontent.com/amagilabs/amagi-vaultgraph/master/assets/layered.png)
 
 ### Colours
 
